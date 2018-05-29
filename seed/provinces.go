@@ -1,14 +1,12 @@
 package seed
 
 import (
-	"io/ioutil"
 	"fmt"
 	"os"
 	"encoding/json"
+	"io/ioutil"
 	"github.com/aliromei/re-project/connection"
 )
-
-type object []province
 
 type province struct {
 	id					int							`json:"id,number" bson:"id"`
@@ -42,7 +40,7 @@ func Run() {
 
 	//fmt.Println(string(file))
 
-	p := object{}
+	var p []province
 
 	json.Unmarshal(file, &p)
 
