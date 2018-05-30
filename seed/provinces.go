@@ -2,49 +2,48 @@ package seed
 
 import (
 	"fmt"
-	"os"
 	"encoding/json"
+	"log"
+	"io/ioutil"
+	"github.com/aliromei/re-project/connection"
 )
 
-type province struct {
-	id					int							`json:"id,number" bson:"id"`
-	name				string					`json:"name,string" bson:"name"`
-	latitude		float32					`json:"latitude,number" bson:"latitude"`
-	longitude		float32					`json:"longitude,number" bson:"longitude"`
-	cities			[]city					`json:"cities" bson:"cities"`
+type Province struct {
+	Id					int							`bson:"id"`
+	Name				string					`bson:"name"`
+	Latitude		float32					`bson:"latitude"`
+	Longitude		float32					`bson:"longitude"`
+	Cities			[]City					`bson:"cities"`
 }
 
-type city struct {
-	id					int							`json:"id,number" bson:"id"`
-	name				string					`json:"name,string" bson:"name"`
-	latitude		float32					`json:"latitude,number" bson:"latitude"`
-	longitude		float32					`json:"longitude,number" bson:"longitude"`
+type City struct {
+	Id					int							`bson:"id"`
+	Name				string					`bson:"name"`
+	Latitude		float32					`bson:"latitude"`
+	Longitude		float32					`bson:"longitude"`
 }
 
 func Run() {
-	defer fmt.Println("Provinces Seed Completed")
+	var provinces []Province
 
-	file, err := os.Open("seed/provinces.json")
+	provinceC := connection.GetConnection().DB(connection.Database).C("provinces")
+
+	file, err := ioutil.ReadFile("seed/provinces.json")
 	if err != nil {
-		fmt.Printf("Provinces Seed Error: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
-	decoder := json.NewDecoder(file)
+	json.Unmarshal(file, &provinces)
 
-	var p []province
+	for _, province := range provinces {
+		fmt.Println(&province)
+		err = provinceC.Insert(&province)
+		if err != nil {
+			fmt.Println("Provinces Seed Error: Inserting to Collection")
+		}
+	}
 
-	decoder.Decode(&p)
+	connection.Disconnect()
 
-	//provinceC := connection.GetConnection().DB(connection.Database).C("provinces")
-
-	fmt.Println(p)
-
-	//for _, province := range p {
-	//	fmt.Println(province.id)
-	//	err = provinceC.Insert(&province)
-	//	if err != nil {
-	//		fmt.Println("Provinces Seed Error: Inserting to Collection")
-	//	}
-	//}
+	fmt.Println("Provinces Seed Completed")
 }
