@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"encoding/json"
-	"io/ioutil"
-	"github.com/aliromei/re-project/connection"
 )
 
 type province struct {
@@ -26,33 +24,27 @@ type city struct {
 func Run() {
 	defer fmt.Println("Provinces Seed Completed")
 
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Println("Provinces Seed Error: Couldn't Find Working Directory")
-		os.Exit(1)
-	}
-
-	file, err := ioutil.ReadFile(dir + "/seed/provinces.json")
+	file, err := os.Open("seed/provinces.json")
 	if err != nil {
 		fmt.Printf("Provinces Seed Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	//fmt.Println(string(file))
+	decoder := json.NewDecoder(file)
 
 	var p []province
 
-	json.Unmarshal(file, &p)
+	decoder.Decode(&p)
 
-	provinceC := connection.GetConnection().DB(connection.Database).C("provinces")
+	//provinceC := connection.GetConnection().DB(connection.Database).C("provinces")
 
 	fmt.Println(p)
 
-	for _, province := range p {
-		fmt.Println(province.id)
-		err = provinceC.Insert(&province)
-		if err != nil {
-			fmt.Println("Provinces Seed Error: Inserting to Collection")
-		}
-	}
+	//for _, province := range p {
+	//	fmt.Println(province.id)
+	//	err = provinceC.Insert(&province)
+	//	if err != nil {
+	//		fmt.Println("Provinces Seed Error: Inserting to Collection")
+	//	}
+	//}
 }
