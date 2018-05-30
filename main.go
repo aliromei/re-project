@@ -1,21 +1,18 @@
 package main
 
 import (
-	"os"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
-	"github.com/aliromei/re-project/seed"
-	"github.com/aliromei/re-project/connection"
 	"github.com/aliromei/re-project/handlers"
 	"github.com/aliromei/re-project/middlewares"
+	"os"
+	"github.com/aliromei/re-project/seed"
+	"github.com/aliromei/re-project/connection"
 )
 
 func main() {
-	if len(os.Args) > 1 {
-		if os.Args[len(os.Args) - 1] == "--seed" {
-			seed.Run()
-		}
-	}
+	connection.Dial()
+	defer connection.Disconnect()
 
 	app := iris.New()
 
@@ -31,8 +28,11 @@ func main() {
 	app.Use(customLogger)
 	app.Use(middlewares.JsonOnly)
 
-	connection.Dial()
-	defer connection.Disconnect()
+	if len(os.Args) > 1 {
+		if os.Args[len(os.Args) - 1] == "--seed" {
+			seed.Run()
+		}
+	}
 
 	app.Post("/register", handlers.Register)
 	app.Post("/login", handlers.Login)

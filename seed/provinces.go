@@ -9,18 +9,18 @@ import (
 )
 
 type Province struct {
-	Id					int							`bson:"id"`
-	Name				string					`bson:"name"`
-	Latitude		float32					`bson:"latitude"`
-	Longitude		float32					`bson:"longitude"`
-	Cities			[]City					`bson:"cities"`
+	Id					int				`json:"id,number" bson:"id"`
+	Name				string		`json:"name" bson:"name"`
+	Latitude		float32		`json:"latitude,number" bson:"latitude"`
+	Longitude		float32		`json:"longitude,number" bson:"longitude"`
+	Cities			[]City		`json:"cities,array" bson:"cities"`
 }
 
 type City struct {
-	Id					int							`bson:"id"`
-	Name				string					`bson:"name"`
-	Latitude		float32					`bson:"latitude"`
-	Longitude		float32					`bson:"longitude"`
+	Id					int				`json:"id,number" bson:"id"`
+	Name				string		`json:"name" bson:"name"`
+	Latitude		float32		`json:"latitude,number" bson:"latitude"`
+	Longitude		float32		`json:"longitude,number" bson:"longitude"`
 }
 
 func Run() {
@@ -39,11 +39,9 @@ func Run() {
 		fmt.Println(&province)
 		err = provinceC.Insert(&province)
 		if err != nil {
-			fmt.Println("Provinces Seed Error: Inserting to Collection")
+			log.Fatal(err)
 		}
 	}
-
-	connection.Disconnect()
 
 	fmt.Println("Provinces Seed Completed")
 }
