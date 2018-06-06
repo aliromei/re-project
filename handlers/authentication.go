@@ -51,10 +51,35 @@ func Register(ctx iris.Context) {
 }
 
 func Login(ctx iris.Context) {
+  var data login
+  if err := ctx.ReadJSON(&data); err != nil {
+    ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":err})
+    return
+  } else if err := validate.Struct(data); err != nil {
+    errs := make(map[string]string)
+    for _, err := range err.(validator.ValidationErrors) {
+      errs[helpers.LowerFirst(err.Field())] = err.Tag()
+    }
+    ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":errs})
+    return
+  } else {
+    var user = model.User{
+      Email: data.Email,
+      PlainPassword: data.Password,
+    }
+    if err := user.Login(); err != nil {
+      ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":fmt.Sprintf("%v", err)})
+      return
+    }
+    ctx.JSON(iris.Map{"code":iris.StatusOK, "data":user})
+  }
   ctx.JSON(iris.Map{"message":"login"})
 }
 
 func Logout(ctx iris.Context) {
-
-  ctx.JSON(iris.Map{"message":"logout"})
+  if err := model.Logout(); err != nil {
+    ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":fmt.Sprintf("%v", err)})
+    return
+  }
+  ctx.JSON(iris.Map{"code":iris.StatusOK})
 }

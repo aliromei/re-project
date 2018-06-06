@@ -39,8 +39,8 @@ func GeneratePassword(userPassword string) ([]byte, error) {
   return bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
 }
 
-func ValidatePassword(userPassword string, hashed []byte) (bool, error) {
-  if err := bcrypt.CompareHashAndPassword(hashed, []byte(userPassword)); err != nil {
+func ValidatePassword(userPassword string, hashedPassword []byte) (bool, error) {
+  if err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(userPassword)); err != nil {
     return false, err
   }
   return true, nil

@@ -36,13 +36,13 @@ func main() {
 
   app.Post("/register", handlers.Register)
   app.Post("/login", handlers.Login)
-  app.Post("/logout", handlers.Logout)
 
   app.Post("/config", handlers.Config)
 
   authorized := app.Party("/", middlewares.Authorization)
 
-  app.Get("/provinces", handlers.Provinces)
+  authorized.Post("/logout", handlers.Logout)
+  authorized.Get("/provinces", handlers.Provinces)
 
   user := authorized.Party("profile")
   user.Get("/", handlers.Profile)

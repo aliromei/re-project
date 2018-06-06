@@ -19,7 +19,7 @@ func (this *User) Create() error {
   this.Password = password
 
   this.Id = bson.NewObjectId()
-  token, err := authentication.GenerateJWT(string(this.Id), false)
+  token, err := authentication.GenerateJWT(string(this.Id.Hex()), false)
   if err != nil {
     return err
   }
@@ -54,4 +54,30 @@ func (this *User) uniqueEmailCheck() error  {
   } else {
     return nil
   }
+}
+
+func (this *User) Login() error {
+  USER := connect("users")
+  newUser := new(User)
+  if err := USER.Find(bson.M{"email":this.Email}).One(&newUser); err != nil {
+    return err
+  } else {
+    if _, err := authentication.ValidatePassword(string(this.Password), newUser.Password); err != nil {
+      return err
+    } else {
+      if JWT, err := authentication.GenerateJWT(string(newUser.Id), newUser.IsAdmin); err != nil {
+        return err
+      } else {
+        newUser.Token = JWT
+        this = newUser
+        return USER.Update(bson.M{"_id":this.Id}, bson.M{"$set":bson.M{"token":this.Token,"updatedAt":time.Now()}})
+      }
+    }
+  }
+}
+
+func Logout() error {
+  USER := connect("users")
+  fmt.Println(authentication.Id)
+  return USER.Update(bson.M{"_id":bson.ObjectIdHex(authentication.Id)}, bson.M{"$set":bson.M{"token":"","updatedAt":time.Now()}})
 }
