@@ -2,7 +2,6 @@ package authentication
 
 import (
   "github.com/dgrijalva/jwt-go"
-  "fmt"
   "golang.org/x/crypto/bcrypt"
 )
 func GenerateJWT(id string, isAdmin bool) (string, error) {
@@ -22,8 +21,6 @@ func DecodeJWT(JWT string) bool {
     return false
   }
 
-  fmt.Println(claims)
-
   for key, value := range claims {
     switch string(key) {
     case "id":
@@ -35,13 +32,10 @@ func DecodeJWT(JWT string) bool {
   return true
 }
 
-func GeneratePassword(userPassword string) ([]byte, error) {
-  return bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+func GenerateHashedPassword(password string) ([]byte, error) {
+  return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func ValidatePassword(userPassword string, hashedPassword []byte) (bool, error) {
-  if err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(userPassword)); err != nil {
-    return false, err
-  }
-  return true, nil
+func CompareHashedAndPassword(hashedPassword []byte, password []byte) error {
+  return bcrypt.CompareHashAndPassword(hashedPassword, password)
 }

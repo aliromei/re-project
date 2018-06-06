@@ -33,7 +33,7 @@ type User struct {
   Id              bson.ObjectId   `json:"_id,string" bson:"_id"`
   Name            string          `json:"name" bson:"name"`
   Email           string          `json:"email" bson:"email"`
-  Password        []byte          `json:"-" bson:"password"`
+  Password        string          `json:"-" bson:"password"`
   PlainPassword   string          `json:"-" bson:"-"`
   Reservations    []Reservation   `json:"reservations" bson:"reservations,omitempty"`
   Token           string          `json:"token" bson:"token,omitempty"`

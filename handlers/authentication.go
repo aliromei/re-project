@@ -73,7 +73,6 @@ func Login(ctx iris.Context) {
     }
     ctx.JSON(iris.Map{"code":iris.StatusOK, "data":user})
   }
-  ctx.JSON(iris.Map{"message":"login"})
 }
 
 func Logout(ctx iris.Context) {

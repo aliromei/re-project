@@ -3,7 +3,6 @@ package model
 import (
   "github.com/aliromei/re-project/authentication"
   "gopkg.in/mgo.v2/bson"
-  "fmt"
   "errors"
   "time"
 )
@@ -12,11 +11,11 @@ func (this *User) Create() error {
   if err := this.uniqueEmailCheck(); err != nil {
     return err
   }
-  password, err := authentication.GeneratePassword(this.PlainPassword)
+  password, err := authentication.GenerateHashedPassword(this.PlainPassword)
   if err != nil {
     return err
   }
-  this.Password = password
+  this.Password = string(password)
 
   this.Id = bson.NewObjectId()
   token, err := authentication.GenerateJWT(string(this.Id.Hex()), false)
@@ -28,7 +27,6 @@ func (this *User) Create() error {
   this.CreatedAt, this.UpdatedAt = time.Now(), time.Now()
 
   this.Insert()
-  fmt.Println(this.Id)
 
   return nil
 }
@@ -62,15 +60,22 @@ func (this *User) Login() error {
   if err := USER.Find(bson.M{"email":this.Email}).One(&newUser); err != nil {
     return err
   } else {
-    if _, err := authentication.ValidatePassword(string(this.Password), newUser.Password); err != nil {
+    if err := authentication.CompareHashedAndPassword([]byte(newUser.Password), []byte(this.PlainPassword)); err != nil {
       return err
     } else {
-      if JWT, err := authentication.GenerateJWT(string(newUser.Id), newUser.IsAdmin); err != nil {
+      if JWT, err := authentication.GenerateJWT(string(newUser.Id.Hex()), newUser.IsAdmin); err != nil {
         return err
       } else {
         newUser.Token = JWT
-        this = newUser
-        return USER.Update(bson.M{"_id":this.Id}, bson.M{"$set":bson.M{"token":this.Token,"updatedAt":time.Now()}})
+        if err := USER.Update(bson.M{"_id":newUser.Id}, bson.M{"$set":bson.M{"token":newUser.Token,"updatedAt":time.Now()}}); err != nil {
+          return err
+        } else {
+          if err := USER.Find(bson.M{"_id":newUser.Id}).One(&this); err != nil {
+            return err
+          } else {
+            return nil
+          }
+        }
       }
     }
   }
@@ -78,6 +83,5 @@ func (this *User) Login() error {
 
 func Logout() error {
   USER := connect("users")
-  fmt.Println(authentication.Id)
   return USER.Update(bson.M{"_id":bson.ObjectIdHex(authentication.Id)}, bson.M{"$set":bson.M{"token":"","updatedAt":time.Now()}})
 }
