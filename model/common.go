@@ -6,5 +6,5 @@ import (
 )
 
 func connect(collection string) *mgo.Collection {
-	return connection.GetConnection().DB(connection.Database).C(collection)
+  return connection.GetConnection().DB(connection.Database).C(collection)
 }
