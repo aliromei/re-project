@@ -10,10 +10,8 @@ import (
 
 func (this *User) Create() error {
   if err := this.uniqueEmailCheck(); err != nil {
-    fmt.Println("after getting error")
     return err
   }
-  fmt.Println("after getting error 2")
   password, err := authentication.GeneratePassword(this.PlainPassword)
   if err != nil {
     return err

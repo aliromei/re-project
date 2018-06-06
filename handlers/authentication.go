@@ -43,7 +43,6 @@ func Register(ctx iris.Context) {
       PlainPassword: data.Password,
     }
     if err := user.Create(); err != nil {
-      fmt.Println(iris.Map{"errors":err})
       ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":fmt.Sprintf("%v", err)})
       return
     }
@@ -56,5 +55,6 @@ func Login(ctx iris.Context) {
 }
 
 func Logout(ctx iris.Context) {
+
   ctx.JSON(iris.Map{"message":"logout"})
 }

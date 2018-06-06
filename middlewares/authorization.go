@@ -2,19 +2,22 @@ package middlewares
 
 import (
   "github.com/kataras/iris"
-  "fmt"
+  "github.com/aliromei/re-project/authentication"
 )
 
 func Authorization(ctx iris.Context) {
-  if ctx.Request().Header.Get("Authorization") != "" {
-    fmt.Println("have Authorization") // todo: check for user & get role of user
-    role := "admin" // todo: save user.Role to role
-    ctx.Values().Set("role", role)
+  if JWT := ctx.Request().Header.Get("Authorization"); JWT != "" {
+    authentication.DecodeJWT(JWT)
+    ctx.Next()
   } else {
     ctx.JSON(iris.Map{"code":iris.StatusForbidden,"error":"Permission Denied"})
   }
 }
 
 func AdminOnly(ctx iris.Context) {
-
+  if authentication.IsAdmin {
+    ctx.Next()
+  } else {
+    ctx.JSON(iris.Map{"code":iris.StatusForbidden,"error":"Permission Denied"})
+  }
 }
