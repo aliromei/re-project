@@ -10,18 +10,14 @@ import (
 
 type (
   register struct {
-    Name      string  `json:"name" validate:"required"`
-    Email     string  `json:"email" validate:"required,email"`
-    Password  string  `json:"password" validate:"required"`
+    Name     string `json:"name" validate:"required"`
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required"`
   }
   login struct {
-    Email     string  `json:"email" validate:"required,email"`
-    Password  string  `json:"password" validate:"required"`
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required"`
   }
-)
-
-var (
-  validate = validator.New()
 )
 
 func Register(ctx iris.Context) {
