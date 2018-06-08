@@ -8,7 +8,7 @@ import (
   "gopkg.in/mgo.v2"
 )
 
-func (this *User) Create() error {
+func (this *User) Create(byAdmin bool) error {
   if err := this.uniqueEmailCheck(); err != nil {
     return err
   }
@@ -19,11 +19,14 @@ func (this *User) Create() error {
   this.Password = string(password)
 
   this.Id = bson.NewObjectId()
-  token, err := authentication.GenerateJWT(string(this.Id.Hex()), false)
-  if err != nil {
-    return err
+
+  if !byAdmin {
+    token, err := authentication.GenerateJWT(string(this.Id.Hex()), false)
+    if err != nil {
+      return err
+    }
+    this.Token = token
   }
-  this.Token = token
 
   this.CreatedAt, this.UpdatedAt = time.Now(), time.Now()
 
@@ -65,6 +68,26 @@ func ShowUser() (User, error) {
   var user User
   USER := connect("users")
   err := USER.FindId(bson.ObjectIdHex(authentication.Id)).One(&user)
+  if err != nil {
+    return user, err
+  }
+  return user, nil
+}
+
+func ShowUserA(id string) (User, error) {
+  var user User
+  USER := connect("users")
+  err := USER.FindId(bson.ObjectIdHex(id)).One(&user)
+  if err != nil {
+    return user, err
+  }
+  return user, nil
+}
+
+func UsersList() ([]User, error) {
+  var user []User
+  USER := connect("users")
+  err := USER.Find(nil).All(&user)
   if err != nil {
     return user, err
   }

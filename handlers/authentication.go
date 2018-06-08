@@ -34,11 +34,11 @@ func Register(ctx iris.Context) {
     return
   } else {
     var user = model.User{
-      Name: data.Name,
-      Email: data.Email,
+      Name:          data.Name,
+      Email:         data.Email,
       PlainPassword: data.Password,
     }
-    if err := user.Create(); err != nil {
+    if err := user.Create(false); err != nil {
       ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":fmt.Sprintf("%v", err)})
       return
     }
@@ -60,7 +60,7 @@ func Login(ctx iris.Context) {
     return
   } else {
     var user = model.User{
-      Email: data.Email,
+      Email:         data.Email,
       PlainPassword: data.Password,
     }
     if err := user.Login(); err != nil {
