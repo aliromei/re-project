@@ -45,3 +45,13 @@ func Run() {
 
   fmt.Println("Provinces Seed Completed")
 }
+
+func Config() ([]Province, error) {
+  var provinces []Province
+  provinceC := connection.GetConnection().DB(connection.Database).C("provinces")
+
+  if err := provinceC.Find(nil).All(&provinces); err != nil {
+    return nil, err
+  }
+  return provinces, nil
+}

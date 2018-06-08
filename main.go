@@ -37,10 +37,9 @@ func main() {
   app.Post("/register", handlers.Register)
   app.Post("/login", handlers.Login)
 
-  app.Post("/config", handlers.Config)
-
   authorized := app.Party("/", middlewares.Authorization)
 
+  authorized.Get("/config", handlers.Config)
   authorized.Post("/logout", handlers.Logout)
   authorized.Get("/provinces", handlers.Provinces)
 
