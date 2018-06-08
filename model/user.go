@@ -5,6 +5,7 @@ import (
   "gopkg.in/mgo.v2/bson"
   "errors"
   "time"
+  "gopkg.in/mgo.v2"
 )
 
 func (this *User) Create() error {
@@ -29,6 +30,45 @@ func (this *User) Create() error {
   this.Insert()
 
   return nil
+}
+
+func (this *User) Update() error {
+  var user User
+  USER := connect("users")
+  if err := USER.FindId(bson.ObjectIdHex(authentication.Id)).One(&user); err != nil {
+    return err
+  }
+  if this.Email != user.Email {
+    if err := this.uniqueEmailCheck(); err != nil {
+      return err
+    }
+    user.Email = this.Email
+  }
+  password, err := authentication.GenerateHashedPassword(this.Password)
+  if err != nil {
+    return err
+  }
+  user.Password = string(password)
+  change := mgo.Change{
+    Update: bson.M{"$set":bson.M{"name":this.Name,"email":user.Email,"password":user.Password}},
+    ReturnNew: true,
+  }
+  _, err = USER.FindId(user.Id).Apply(change, this)
+  if err != nil {
+    return err
+  }
+  return nil
+
+}
+
+func ShowUser() (User, error) {
+  var user User
+  USER := connect("users")
+  err := USER.FindId(bson.ObjectIdHex(authentication.Id)).One(&user)
+  if err != nil {
+    return user, err
+  }
+  return user, nil
 }
 
 func (this *User) Insert() error {

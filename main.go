@@ -41,7 +41,6 @@ func main() {
 
   authorized.Get("/config", handlers.Config)
   authorized.Post("/logout", handlers.Logout)
-  authorized.Get("/provinces", handlers.Provinces)
 
   user := authorized.Party("profile")
   user.Get("/", handlers.Profile)
