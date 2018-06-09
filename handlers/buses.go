@@ -39,7 +39,6 @@ func CreateBus(ctx iris.Context) {
   } else if err := validate.Struct(data); err != nil {
     errs := make(map[string]string)
     for _, err := range err.(validator.ValidationErrors) {
-      fmt.Println(err)
       errs[helpers.LowerFirst(err.Field())] = err.Tag()
     }
     ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":errs})

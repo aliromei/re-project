@@ -41,6 +41,9 @@ func UpdateBus(id string, status int) (Bus, error) {
   if _, err := BUS.FindId(bson.ObjectIdHex(id)).Apply(changes, &bus); err != nil {
     return bus, nil
   }
+  if err := ChangePassengersStatus(id, status); err != nil {
+    return bus, err
+  }
   return bus, nil
 }
 

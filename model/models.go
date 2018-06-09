@@ -29,7 +29,7 @@ type (
     Seats          int           `json:"seats,number" bson:"seats"`
     OpenSeatCount  int           `json:"openSeats,number" bson:"openSeats"`
     AvailableSeats []int         `json:"availableSeats" bson:"availableSeats"`
-    Passengers     []Passenger   `json:"passengers,omitempty" bson:"passenger,omitempty"`
+    Passengers     []Passenger   `json:"passengers,omitempty" bson:"passenger"`
     Status         int           `json:"status,number" bson:"status"`
     Origin         Address       `json:"origin" bson:"origin"`
     Destination    Address       `json:"destination" bson:"destination"`
@@ -52,9 +52,9 @@ type (
 
   Reservation struct {
     BusId       string  `json:"busId,string" bson:"busId"`
+    Seat        int     `json:"seat,number" bson:"seat"`
     Origin      Address `json:"origin" bson:"origin"`
     Destination Address `json:"destination" bson:"destination"`
-    Seat        int     `json:"seat,number" bson:"seat"`
     Status      int     `json:"status,number" bson:"status"`
   }
 )

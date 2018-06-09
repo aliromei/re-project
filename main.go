@@ -45,6 +45,7 @@ func main() {
   user := authorized.Party("profile")
   user.Get("/", handlers.Profile)
   user.Post("/update", handlers.UpdateProfile)
+  user.Post("/reserve", handlers.Reserve)
 
   users := authorized.Party("/users", middlewares.AdminOnly)
   users.Get("/", handlers.UsersList)

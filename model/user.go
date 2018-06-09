@@ -61,7 +61,6 @@ func (this *User) Update() error {
     return err
   }
   return nil
-
 }
 
 func ShowUser() (User, error) {
@@ -147,4 +146,25 @@ func (this *User) Login() error {
 func Logout() error {
   USER := connect("users")
   return USER.Update(bson.M{"_id":bson.ObjectIdHex(authentication.Id)}, bson.M{"$set":bson.M{"token":"","updatedAt":time.Now()}})
+}
+
+func ChangePassengersStatus(id string, status int) error {
+  var matchedUsers []User
+  USER := connect("users")
+  if err := USER.Find(bson.M{"reservations":bson.M{"$elemMatch":bson.M{"busId":id}}}).All(&matchedUsers); err != nil {
+    return err
+  }
+  for i := range matchedUsers {
+    for i2 := range matchedUsers[i].Reservations {
+      if matchedUsers[i].Reservations[i2].BusId == id {
+        matchedUsers[i].Reservations[i2].Status = status
+      }
+    }
+  }
+  for i := range matchedUsers {
+    if err := USER.UpdateId(matchedUsers[i].Id,bson.M{"$set":bson.M{"reservations":matchedUsers[i].Reservations,"updatedAt":time.Now()}}); err != nil {
+      return err
+    }
+  }
+  return nil
 }

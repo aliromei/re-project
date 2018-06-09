@@ -37,7 +37,6 @@ func ShowUser(ctx iris.Context) {
 func CreateUser(ctx iris.Context) {
   var data create
   if err := ctx.ReadJSON(&data); err != nil {
-    fmt.Println(err)
     ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":err})
     return
   } else if err := validate.Struct(data); err != nil {

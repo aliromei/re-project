@@ -14,6 +14,11 @@ type (
     Email    string `json:"email" validate:"required,email"`
     Password string `json:"password" validate:"required"`
   }
+
+  reserve struct {
+    BusId string  `json:"busId" validate:"required"`
+    Seat  int     `json:"seat" validate:"required"`
+  }
 )
 
 func Profile(ctx iris.Context) {
@@ -26,7 +31,7 @@ func Profile(ctx iris.Context) {
 }
 
 func UpdateProfile(ctx iris.Context) {
-  var data register
+  var data update
   if err := ctx.ReadJSON(&data); err != nil {
     ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":err})
     return
@@ -48,5 +53,26 @@ func UpdateProfile(ctx iris.Context) {
       return
     }
     ctx.JSON(iris.Map{"code":iris.StatusOK, "data":user})
+  }
+}
+
+func Reserve(ctx iris.Context) {
+  var data reserve
+  if err := ctx.ReadJSON(&data); err != nil {
+    ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":err})
+    return
+  } else if err := validate.Struct(data); err != nil {
+    errs := make(map[string]string)
+    for _, err := range err.(validator.ValidationErrors) {
+      errs[helpers.LowerFirst(err.Field())] = err.Tag()
+    }
+    ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":errs})
+    return
+  } else {
+    if err := model.Reserve(data.BusId, data.Seat); err != nil {
+      ctx.JSON(iris.Map{"code":iris.StatusBadRequest, "errors":fmt.Sprintf("%v", err)})
+      return
+    }
+    ctx.JSON(iris.Map{"code":iris.StatusOK})
   }
 }
